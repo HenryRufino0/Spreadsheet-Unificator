@@ -8,6 +8,9 @@ from openpyxl import load_workbook, Workbook
 from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 
+#  BACK-END
+
+
 # Caminhos fixos
 CAMINHO_PLANILHAS = "C:/Comparador de Planilhas/Viagens do dia/"
 CAMINHO_BACKUP = "C:/Unificador de Planilhas/Backup das viagens/"
@@ -199,19 +202,76 @@ def unificar_planilhas_formatadas():
     status_var.set(f"✔ Planilha gerada: {os.path.basename(caminho_saida)}")
     messagebox.showinfo("Sucesso", f"Arquivo salvo:\n{caminho_saida}")
 
-# Interface gráfica
-janela = tk.Tk()
-janela.title("Unificador de Planilhas")
-janela.geometry("440x270")
 
-status_var = tk.StringVar()
-status_var.set("Nenhuma planilha carregada ainda.")
 
-tk.Label(janela, text="Unificador de Planilhas Excel", font=("Arial", 14)).pack(pady=10)
-tk.Button(janela, text="Carregar planilhas da pasta", command=selecionar_planilhas, width=30).pack(pady=5)
-tk.Button(janela, text="Unificar e Salvar", command=unificar_planilhas_formatadas, width=30).pack(pady=5)
-tk.Button(janela, text="Abrir pasta de saída", command=abrir_pasta_saida, width=30).pack(pady=5)
-tk.Button(janela, text="Sair", command=janela.destroy, width=30).pack(pady=5)
-tk.Label(janela, textvariable=status_var, wraplength=400, fg="blue").pack(pady=10)
 
-janela.mainloop()
+
+# FRONT-END
+class App:
+    COR_PRINCIPAL = "#eaf4fb"
+    COR_BOTAO = "#007acc"
+    COR_BOTAO_HOVER = "#005f99"
+    COR_TEXTO = "#003b5c"
+    COR_STATUS = "#1c4966"
+
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Unificador de Planilhas")
+        self.root.geometry("500x350")
+        self.root.configure(bg=self.COR_PRINCIPAL)
+
+        self.status_var = tk.StringVar()
+        self.status_var.set("Nenhuma planilha carregada ainda.")
+        global status_var
+        status_var = self.status_var  # permite usar no backend
+
+        self.criar_interface()
+
+    def criar_interface(self):
+        tk.Label(
+            self.root,
+            text="Unificador de Planilhas Excel",
+            bg=self.COR_PRINCIPAL,
+            fg=self.COR_TEXTO,
+            font=("Segoe UI", 16, "bold")
+        ).pack(pady=20)
+
+        self.criar_botao("Carregar planilhas da pasta", selecionar_planilhas).pack(pady=5)
+        self.criar_botao("Unificar e Salvar", unificar_planilhas_formatadas).pack(pady=5)
+        self.criar_botao("Abrir pasta de saída", abrir_pasta_saida).pack(pady=5)
+        self.criar_botao("Sair", self.root.destroy).pack(pady=5)
+
+        tk.Label(
+            self.root,
+            textvariable=self.status_var,
+            bg=self.COR_PRINCIPAL,
+            fg=self.COR_STATUS,
+            font=("Segoe UI", 10, "italic"),
+            wraplength=480
+        ).pack(pady=15)
+
+    def criar_botao(self, texto, comando):
+        btn = tk.Button(
+            self.root,
+            text=texto,
+            command=comando,
+            bg=self.COR_BOTAO,
+            fg="white",
+            activebackground=self.COR_BOTAO_HOVER,
+            activeforeground="white",
+            font=("Segoe UI", 10, "bold"),
+            width=30,
+            height=2,
+            bd=0,
+            relief="flat",
+            cursor="hand2"
+        )
+        btn.bind("<Enter>", lambda e: btn.config(bg=self.COR_BOTAO_HOVER))
+        btn.bind("<Leave>", lambda e: btn.config(bg=self.COR_BOTAO))
+        return btn
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = App(root)
+    root.mainloop()
